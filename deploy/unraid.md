@@ -28,17 +28,15 @@ The helper runs `tailscale serve --service=svc:stackarr --https=443 127.0.0.1:18
 
 ## Cloudflare hostname
 
-The existing remotely managed `magpie` Cloudflare Tunnel now has an ingress for `stackarr.pattysunfish.cc` pointing to `http://localhost:18080`, alongside its existing Magpie ingress. Stackarr remains loopback-only on Unraid.
+Stackarr uses Unraid's existing Nginx Proxy Manager route. The app stays loopback-only on host port 18080 and is also attached to the private `stackarr-proxy` Docker network; Nginx Proxy Manager forwards to its stable internal address `172.19.0.2:8080`.
 
-Cloudflare DNS still needs a proxied CNAME record:
+Cloudflare DNS points the hostname at the existing Unraid origin:
 
 ```text
-stackarr.pattysunfish.cc CNAME d1090198-885a-4001-b8d0-95d501387f1e.cfargotunnel.com
+stackarr.pattysunfish.cc CNAME unraid.pattysunfish.cc
 ```
 
-The available Cloudflare OAuth session can read and update the tunnel, but its zone permission cannot create DNS records. Add that CNAME with a Cloudflare credential that has DNS edit permission, then verify `https://stackarr.pattysunfish.cc/health`.
-
-The existing `magpie.pattysunfish.cc` endpoint returns a Cloudflare Access 401 when unauthenticated. Keep that same Access application or wildcard policy covering `stackarr.pattysunfish.cc` before publishing the DNS record; the available OAuth session cannot inspect or edit Access applications.
+The certificate and Nginx Proxy Manager host are managed on Unraid. Cloudflare Tunnel is not part of the required Stackarr route.
 
 The existing qBittorrent container shares Gluetun's network namespace. Its WebUI/API is therefore `http://GluetunVPN:8080` from the `arr` network. The current qBittorrent password is stored only as a hash in its config, so leave `qbittorrent` out of `MEDIA_DOWNLOAD_CLIENTS` until a plaintext credential is supplied through the protected env file. Do not change qBittorrent's config to work around that.
 
