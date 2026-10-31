@@ -1,0 +1,7 @@
+[
+  {"app": "sonarr", "kind": "series", "media_id": "chi-1", "title": "Chi's Sweet Home", "season": 1, "episode": 1},
+  {"app": "sonarr", "kind": "series", "media_id": "chi-2", "title": "Chi's Sweet Home", "season": 2, "episode": 1},
+  {"app": "radarr", "kind": "movie", "media_id": "kaguya", "title": "Cosmic Princess Kaguya", "year": 2024},
+  {"app": "sonarr", "kind": "series", "media_id": "big-girls-4", "title": "Do You Like Big Girls", "season": 1, "episode": 4},
+  {"app": "sonarr", "kind": "series", "media_id": "big-girls-5", "title": "Do You Like Big Girls", "season": 1, "episode": 5}
+]

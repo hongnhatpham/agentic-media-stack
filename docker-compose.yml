@@ -1,0 +1,17 @@
+services:
+  media-stack:
+    build: .
+    container_name: agentic-media-stack
+    ports:
+      - "8080:8080"
+    environment:
+      MEDIA_DOWNLOADS_ROOT: /downloads
+      MEDIA_AUDIT_PATH: /config/audit.jsonl
+      MEDIA_DRY_RUN: "true"
+      MEDIA_RESTART_CAP: "2"
+    volumes:
+      - /mnt/user/downloads:/downloads:ro
+      - /mnt/user/appdata/agentic-media-stack:/config
+    read_only: true
+    security_opt:
+      - no-new-privileges:true

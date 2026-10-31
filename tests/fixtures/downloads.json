@@ -1,0 +1,7 @@
+[
+  {"id": "chis-s01", "name": "Chi's Sweet Home - S01E01.mkv", "path": "/downloads/chi/season1/episode01.mkv", "size_bytes": 1000, "completed_at": "2026-10-30T10:00:00Z", "client": "qbittorrent", "source": "sonarr"},
+  {"id": "chis-s02", "name": "Chi's Sweet Home - S02E01.mkv", "path": "/downloads/chi/season2/episode01.mkv", "size_bytes": 1000, "completed_at": "2026-10-30T10:01:00Z", "client": "qbittorrent", "source": "sonarr"},
+  {"id": "kaguya", "name": "Cosmic Princess Kaguya (2024).mkv", "path": "/downloads/kaguya.mkv", "size_bytes": 1000, "completed_at": "2026-10-30T10:02:00Z", "client": "sabnzbd", "source": "radarr"},
+  {"id": "big-girls-04", "name": "Do You Like Big Girls - S01E04.mkv", "path": "/downloads/big-girls/04.mkv", "size_bytes": 1000, "completed_at": "2026-10-30T10:03:00Z", "client": "qbittorrent", "source": "sonarr"},
+  {"id": "big-girls-05", "name": "Do You Like Big Girls - S01E05.mkv", "path": "/downloads/big-girls/05.mkv", "size_bytes": 1000, "completed_at": "2026-10-30T10:04:00Z", "client": "qbittorrent", "source": "sonarr"}
+]
