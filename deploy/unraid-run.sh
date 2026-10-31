@@ -19,12 +19,17 @@ socket_path=$(value TAILSCALE_SOCKET_PATH)
 socket_path=${socket_path:-/var/run/tailscale/tailscaled.sock}
 state_path=$(value UNRAID_APPDATA_PATH)
 state_path=${state_path:-/mnt/user/appdata/stackarr/state}
+proxy_network=$(value STACKARR_PROXY_NETWORK)
+proxy_network=${proxy_network:-stackarr-proxy}
 image=${STACKARR_IMAGE:-stackarr:$(git -C "$repo" rev-parse --short HEAD)}
 
 docker network inspect arr >/dev/null 2>&1 || {
   echo 'required Docker network arr is missing' >&2
   exit 2
 }
+if ! docker network inspect "$proxy_network" >/dev/null 2>&1; then
+  docker network create --driver bridge --internal --subnet 172.19.0.0/16 "$proxy_network" >/dev/null
+fi
 [ -S "$socket_path" ] || {
   echo "host Tailscale socket is missing: $socket_path" >&2
   exit 2
@@ -81,6 +86,10 @@ done
   docker logs --tail 80 stackarr >&2 || true
   exit 1
 }
+
+# Nginx Proxy Manager's generated config does not use Docker's embedded DNS
+# for variable upstreams. Keep a stable private IP for its proxy host instead.
+docker network connect --ip 172.19.0.2 "$proxy_network" stackarr >/dev/null 2>&1 || true
 
 docker run --detach \
   --name stackarr-tailscale \

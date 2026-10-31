@@ -19,6 +19,7 @@ services:
       - /tmp
     networks:
       - arr
+      - stackarr-proxy
     ports:
       - "127.0.0.1:${STACKARR_HOST_PORT:-18080}:8080"
     restart: unless-stopped
@@ -71,4 +72,6 @@ services:
 
 networks:
   arr:
+    external: true
+  stackarr-proxy:
     external: true

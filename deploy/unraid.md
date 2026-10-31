@@ -6,7 +6,7 @@ The deployment uses the existing `arr` Docker network and binds the app to Unrai
 install -m 600 deploy/unraid.env.example deploy/unraid.env
 ```
 
-Set the real values on Unraid. `TAILSCALE_SOCKET_PATH` should point to the host daemon socket, normally `/var/run/tailscale/tailscaled.sock`. `STACKARR_HOST_PORT` defaults to the loopback-only port 18080 because Gluetun already owns host port 8080.
+Set the real values on Unraid. `TAILSCALE_SOCKET_PATH` should point to the host daemon socket, normally `/var/run/tailscale/tailscaled.sock`. `STACKARR_HOST_PORT` defaults to the loopback-only port 18080 because Gluetun already owns host port 8080. `STACKARR_PROXY_NETWORK` defaults to the private `stackarr-proxy` network used by Nginx Proxy Manager.
 
 Tailscale service hosts must be tagged. The host node must already be authorized with `tag:stackarr`; the deployment helper checks this and exits before changing containers if it is missing. This tag does not advertise or remove subnet routes.
 
@@ -41,6 +41,8 @@ The available Cloudflare OAuth session can read and update the tunnel, but its z
 The existing `magpie.pattysunfish.cc` endpoint returns a Cloudflare Access 401 when unauthenticated. Keep that same Access application or wildcard policy covering `stackarr.pattysunfish.cc` before publishing the DNS record; the available OAuth session cannot inspect or edit Access applications.
 
 The existing qBittorrent container shares Gluetun's network namespace. Its WebUI/API is therefore `http://GluetunVPN:8080` from the `arr` network. The current qBittorrent password is stored only as a hash in its config, so leave `qbittorrent` out of `MEDIA_DOWNLOAD_CLIENTS` until a plaintext credential is supplied through the protected env file. Do not change qBittorrent's config to work around that.
+
+Nginx Proxy Manager forwards to Stackarr's stable private address `172.19.0.2:8080` on `stackarr-proxy`; the network has no host port and is shared only by Stackarr and Nginx Proxy Manager.
 
 When `SONARR_URL`, `RADARR_URL`, and a download-client URL plus credentials are present, the plan path reads those services through the configured adapters. The validation command remains offline and never tests credentials.
 
