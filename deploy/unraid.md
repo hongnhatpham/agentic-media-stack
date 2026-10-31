@@ -38,6 +38,8 @@ stackarr.pattysunfish.cc CNAME d1090198-885a-4001-b8d0-95d501387f1e.cfargotunnel
 
 The available Cloudflare OAuth session can read and update the tunnel, but its zone permission cannot create DNS records. Add that CNAME with a Cloudflare credential that has DNS edit permission, then verify `https://stackarr.pattysunfish.cc/health`.
 
+The existing `magpie.pattysunfish.cc` endpoint returns a Cloudflare Access 401 when unauthenticated. Keep that same Access application or wildcard policy covering `stackarr.pattysunfish.cc` before publishing the DNS record; the available OAuth session cannot inspect or edit Access applications.
+
 The existing qBittorrent container shares Gluetun's network namespace. Its WebUI/API is therefore `http://GluetunVPN:8080` from the `arr` network. The current qBittorrent password is stored only as a hash in its config, so leave `qbittorrent` out of `MEDIA_DOWNLOAD_CLIENTS` until a plaintext credential is supplied through the protected env file. Do not change qBittorrent's config to work around that.
 
 When `SONARR_URL`, `RADARR_URL`, and a download-client URL plus credentials are present, the plan path reads those services through the configured adapters. The validation command remains offline and never tests credentials.
