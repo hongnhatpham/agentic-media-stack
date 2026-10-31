@@ -20,7 +20,7 @@ services:
     networks:
       - arr
     ports:
-      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:${STACKARR_HOST_PORT:-18080}:8080"
     restart: unless-stopped
     healthcheck:
       test:
@@ -48,7 +48,7 @@ services:
       - -ec
     command: >-
       tailscale --socket=/var/run/tailscale/tailscaled.sock serve --bg
-      --service=svc:stackarr --https=443 127.0.0.1:8080
+      --service=svc:stackarr --https=443 127.0.0.1:${STACKARR_HOST_PORT:-18080}
       && exec sleep infinity
     volumes:
       - ${TAILSCALE_SOCKET_PATH:-/var/run/tailscale/tailscaled.sock}:/var/run/tailscale/tailscaled.sock

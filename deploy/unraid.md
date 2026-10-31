@@ -6,7 +6,7 @@ The deployment uses the existing `arr` Docker network and binds the app to Unrai
 install -m 600 deploy/unraid.env.example deploy/unraid.env
 ```
 
-Set the real values on Unraid. `TAILSCALE_SOCKET_PATH` should point to the host daemon socket, normally `/var/run/tailscale/tailscaled.sock`.
+Set the real values on Unraid. `TAILSCALE_SOCKET_PATH` should point to the host daemon socket, normally `/var/run/tailscale/tailscaled.sock`. `STACKARR_HOST_PORT` defaults to the loopback-only port 18080 because Gluetun already owns host port 8080.
 
 Validate the configuration without making network calls:
 
@@ -14,9 +14,9 @@ Validate the configuration without making network calls:
 docker compose -f docker-compose.unraid.yml run --rm stackarr validate-config
 ```
 
-Build and start the stack with `docker compose -f docker-compose.unraid.yml up -d --build`. It maps the existing `/mnt/user/data` tree read-only at `/downloads`, persists state and audit data in `/mnt/user/appdata/stackarr`, and keeps `MEDIA_DRY_RUN=true`. The requested URL is `https://stackarr.feist-beardie.ts.net`; the helper advertises the `svc:stackarr` Tailscale service and HTTPS Serve terminates TLS. The only host binding is `127.0.0.1:8080`.
+Build and start the stack with `docker compose -f docker-compose.unraid.yml up -d --build`. It maps the existing `/mnt/user/data` tree read-only at `/downloads`, persists state and audit data in `/mnt/user/appdata/stackarr`, and keeps `MEDIA_DRY_RUN=true`. The requested URL is `https://stackarr.feist-beardie.ts.net`; the helper advertises the `svc:stackarr` Tailscale service and HTTPS Serve terminates TLS. The only host binding is loopback `127.0.0.1:18080` by default.
 
-The helper runs `tailscale serve --service=svc:stackarr --https=443 127.0.0.1:8080` through the mounted host socket. Tailscale may require an administrator to approve the new service host once; that approval is a tailnet policy action, not a secret handoff.
+The helper runs `tailscale serve --service=svc:stackarr --https=443 127.0.0.1:18080` through the mounted host socket. Tailscale may require an administrator to approve the new service host once; that approval is a tailnet policy action, not a secret handoff.
 
 The existing qBittorrent container shares Gluetun's network namespace. Its WebUI/API is therefore `http://GluetunVPN:8080` from the `arr` network. The current qBittorrent password is stored only as a hash in its config, so leave `qbittorrent` out of `MEDIA_DOWNLOAD_CLIENTS` until a plaintext credential is supplied through the protected env file. Do not change qBittorrent's config to work around that.
 
