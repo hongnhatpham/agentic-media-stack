@@ -8,6 +8,8 @@ install -m 600 deploy/unraid.env.example deploy/unraid.env
 
 Set the real values on Unraid. `TAILSCALE_SOCKET_PATH` should point to the host daemon socket, normally `/var/run/tailscale/tailscaled.sock`. `STACKARR_HOST_PORT` defaults to the loopback-only port 18080 because Gluetun already owns host port 8080.
 
+Tailscale service hosts must be tagged. The host node must already be authorized with `tag:stackarr`; the deployment helper checks this and exits before changing containers if it is missing. This tag does not advertise or remove subnet routes.
+
 Validate the configuration without making network calls:
 
 ```bash

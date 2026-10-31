@@ -29,6 +29,19 @@ docker network inspect arr >/dev/null 2>&1 || {
   echo "host Tailscale socket is missing: $socket_path" >&2
   exit 2
 }
+command -v tailscale >/dev/null 2>&1 || {
+  echo 'host Tailscale CLI is missing' >&2
+  exit 2
+}
+command -v jq >/dev/null 2>&1 || {
+  echo 'host jq is missing' >&2
+  exit 2
+}
+tailscale --socket="$socket_path" status --json 2>/dev/null \
+  | jq -e '.Self.Tags // [] | index("tag:stackarr") != null' >/dev/null || {
+  echo 'host Tailscale node must be authorized with tag:stackarr before serving svc:stackarr' >&2
+  exit 2
+}
 
 mkdir -p "$state_path/backups"
 chmod 700 "$state_path" "$state_path/backups"
