@@ -1,0 +1,17 @@
+services:
+  media-stack:
+    build:
+      context: .
+    container_name: agentic-media-stack-mock
+    environment:
+      MEDIA_MOCK_MODE: "true"
+      MEDIA_STATE_PATH: /config/state.db
+      MEDIA_AUDIT_PATH: /config/audit.jsonl
+      MEDIA_DRY_RUN: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./tmp/mock-config:/config
+    read_only: true
+    security_opt:
+      - no-new-privileges:true

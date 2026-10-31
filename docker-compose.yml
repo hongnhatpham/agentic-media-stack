@@ -7,6 +7,7 @@ services:
     environment:
       MEDIA_DOWNLOADS_ROOT: /downloads
       MEDIA_AUDIT_PATH: /config/audit.jsonl
+      MEDIA_STATE_PATH: /config/state.db
       MEDIA_DRY_RUN: "true"
       MEDIA_RESTART_CAP: "2"
     volumes:

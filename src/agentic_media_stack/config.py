@@ -20,6 +20,7 @@ class Config:
     manifest: str | None = None
     candidate_manifest: str | None = None
     audit_path: str = "/config/audit.jsonl"
+    state_path: str = "/config/state.db"
     dry_run: bool = True
     restart_cap: int = 2
     http_timeout: float = 10.0
@@ -33,6 +34,12 @@ class Config:
     qbittorrent_password: str | None = None
     sabnzbd_url: str | None = None
     sabnzbd_api_key: str | None = None
+    indexer_url: str | None = None
+    indexer_api_key: str | None = None
+    jellyfin_url: str | None = None
+    jellyfin_api_key: str | None = None
+    auth_token: str | None = None
+    mock_mode: bool = False
 
     @classmethod
     def from_env(cls) -> "Config":
@@ -57,6 +64,7 @@ class Config:
             manifest=os.getenv("MEDIA_DOWNLOAD_MANIFEST"),
             candidate_manifest=os.getenv("MEDIA_CANDIDATE_MANIFEST"),
             audit_path=os.getenv("MEDIA_AUDIT_PATH", "/config/audit.jsonl"),
+            state_path=os.getenv("MEDIA_STATE_PATH", "/config/state.db"),
             dry_run=os.getenv("MEDIA_DRY_RUN", "true").casefold() not in {"0", "false", "no"},
             restart_cap=cls._int_env("MEDIA_RESTART_CAP", 2, invalid=-1),
             http_timeout=cls._float_env("MEDIA_HTTP_TIMEOUT", 10.0, invalid=0.0),
@@ -70,6 +78,12 @@ class Config:
             qbittorrent_password=os.getenv("QBITTORRENT_PASSWORD"),
             sabnzbd_url=sabnzbd_url,
             sabnzbd_api_key=os.getenv("SABNZBD_API_KEY"),
+            indexer_url=os.getenv("PROWLARR_URL"),
+            indexer_api_key=os.getenv("PROWLARR_API_KEY"),
+            jellyfin_url=os.getenv("JELLYFIN_URL"),
+            jellyfin_api_key=os.getenv("JELLYFIN_API_KEY"),
+            auth_token=os.getenv("MEDIA_AUTH_TOKEN"),
+            mock_mode=os.getenv("MEDIA_MOCK_MODE", "false").casefold() in {"1", "true", "yes"},
         )
 
     def public_dict(self) -> dict[str, object]:
@@ -78,6 +92,7 @@ class Config:
             "manifest": self.manifest,
             "candidate_manifest": self.candidate_manifest,
             "audit_path": self.audit_path,
+            "state_path": self.state_path,
             "dry_run": self.dry_run,
             "restart_cap": self.restart_cap,
             "http_timeout": self.http_timeout,
@@ -91,6 +106,12 @@ class Config:
             "qbittorrent_password": "[REDACTED]" if self.qbittorrent_password else None,
             "sabnzbd_url": self.sabnzbd_url,
             "sabnzbd_api_key": "[REDACTED]" if self.sabnzbd_api_key else None,
+            "indexer_url": self.indexer_url,
+            "indexer_api_key": "[REDACTED]" if self.indexer_api_key else None,
+            "jellyfin_url": self.jellyfin_url,
+            "jellyfin_api_key": "[REDACTED]" if self.jellyfin_api_key else None,
+            "auth_token": "[REDACTED]" if self.auth_token else None,
+            "mock_mode": self.mock_mode,
         }
 
     def validate(self) -> ConfigValidation:
@@ -124,6 +145,18 @@ class Config:
         self._validate_url("SABnzbd", self.sabnzbd_url, errors)
         if self.sabnzbd_url and not self.sabnzbd_api_key:
             errors.append("SABNZBD_URL requires SABNZBD_API_KEY")
+        self._validate_url("Prowlarr", self.indexer_url, errors)
+        if self.indexer_url and not self.indexer_api_key:
+            errors.append("PROWLARR_URL requires PROWLARR_API_KEY")
+        if self.indexer_api_key and not self.indexer_url:
+            errors.append("PROWLARR_API_KEY is set but PROWLARR_URL is missing")
+        self._validate_url("Jellyfin", self.jellyfin_url, errors)
+        if self.jellyfin_url and not self.jellyfin_api_key:
+            errors.append("JELLYFIN_URL requires JELLYFIN_API_KEY")
+        if self.jellyfin_api_key and not self.jellyfin_url:
+            errors.append("JELLYFIN_API_KEY is set but JELLYFIN_URL is missing")
+        if not self.auth_token:
+            warnings.append("MEDIA_AUTH_TOKEN is not set; private API authentication is disabled")
 
         supported_clients = {"filesystem", "qbittorrent", "sabnzbd"}
         unknown_clients = sorted(set(self.download_clients) - supported_clients)

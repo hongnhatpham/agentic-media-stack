@@ -15,6 +15,8 @@ from .adapters import (
 from .audit import AuditLog
 from .config import Config
 from .engine import MediaEngine
+from .service import build_service
+from .state import StateStore
 
 
 def _engine(config: Config) -> MediaEngine:
@@ -60,11 +62,14 @@ def _engine(config: Config) -> MediaEngine:
 
 def main() -> int:
     parser = argparse.ArgumentParser(prog="media-stack", description="Safe media import planning")
-    parser.add_argument("command", choices=("plan", "serve", "validate-config"))
+    parser.add_argument(
+        "command", choices=("plan", "serve", "validate-config", "migrate", "backup")
+    )
     parser.add_argument(
         "--execute", action="store_true", help="execute approved imports; default is dry-run"
     )
     parser.add_argument("--port", type=int, default=8080)
+    parser.add_argument("--destination", help="backup destination for the backup command")
     args = parser.parse_args()
     config = Config.from_env()
     if args.command == "validate-config":
@@ -81,6 +86,18 @@ def main() -> int:
             )
         )
         return 0 if result.valid else 2
+    if args.command == "migrate":
+        StateStore(config.state_path).close()
+        print(json.dumps({"ok": True, "state_path": config.state_path}))
+        return 0
+    if args.command == "backup":
+        if not args.destination:
+            parser.error("backup requires --destination")
+        state = StateStore(config.state_path)
+        state.backup(args.destination)
+        state.close()
+        print(json.dumps({"ok": True, "destination": args.destination}))
+        return 0
     validation = config.validate()
     if not validation.valid:
         print(
@@ -88,7 +105,8 @@ def main() -> int:
             file=sys.stderr,
         )
         return 2
-    engine = _engine(config)
+    service = build_service(config)
+    engine = service.engine
     if args.command == "plan":
         plan = engine.plan()
         payload: object = plan
@@ -98,7 +116,7 @@ def main() -> int:
         return 0
     from .api import serve
 
-    serve(engine, port=args.port)
+    serve(service, port=args.port)
     return 0
 
 

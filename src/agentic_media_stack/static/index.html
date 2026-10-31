@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0d1117" />
+    <title>Agentic Media Stack</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="rail">
+        <div class="brand"><span class="brand-mark">AM</span><span>Agentic<br />Media</span></div>
+        <nav aria-label="Primary">
+          <button class="nav-item active" data-view="overview"><span>01</span>Overview</button>
+          <button class="nav-item" data-view="requests"><span>02</span>Requests</button>
+          <button class="nav-item" data-view="imports"><span>03</span>Imports</button>
+          <button class="nav-item" data-view="library"><span>04</span>Library</button>
+          <button class="nav-item" data-view="activity"><span>05</span>Activity</button>
+        </nav>
+        <div class="rail-foot"><span class="live-dot"></span><span id="rail-state">Connecting</span></div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div><p class="eyebrow">Private media operations</p><h1 id="page-title">Overview</h1></div>
+          <div class="top-actions"><button class="button ghost" id="refresh-all">Refresh</button><span class="build-chip">dry-run aware</span></div>
+        </header>
+
+        <section class="view active" id="view-overview">
+          <div class="hero-row"><div><p class="eyebrow accent">Shared media graph</p><h2>From release to verified library.</h2><p class="lede">One place to request, inspect, import, repair, and undo without touching the original download.</p></div><div class="hero-orbit" aria-hidden="true"><span></span><span></span><span></span><b>graph</b></div></div>
+          <div class="stat-grid" id="stat-grid"></div>
+          <div class="two-col"><section class="panel"><div class="panel-head"><div><p class="eyebrow">Work queue</p><h3>Recent requests</h3></div><button class="text-button" data-view-link="requests">View all</button></div><div id="overview-requests" class="stack"></div></section><section class="panel"><div class="panel-head"><div><p class="eyebrow">Safety rail</p><h3>Connected services</h3></div></div><div id="service-list" class="service-list"></div></section></div>
+        </section>
+
+        <section class="view" id="view-requests">
+          <div class="section-intro"><div><p class="eyebrow accent">Find something new</p><h2>Search and request</h2><p class="lede">Search configured indexers, compare releases, then send one chosen candidate to qBittorrent.</p></div></div>
+          <section class="panel request-panel"><form id="request-form" class="request-form"><label>What are you looking for?<input name="title" required placeholder="Cosmic Princess Kaguya" /></label><label>Type<select name="kind"><option value="movie">Movie</option><option value="series">Series</option><option value="anime">Anime</option></select></label><label>Year <span class="optional">optional</span><input name="year" inputmode="numeric" placeholder="2024" /></label><button class="button primary" type="submit">Search indexers</button></form><p id="request-feedback" class="feedback"></p></section>
+          <div class="request-layout"><section class="panel"><div class="panel-head"><div><p class="eyebrow">Your queue</p><h3>Requests</h3></div><button class="text-button" id="refresh-requests">Refresh</button></div><div id="request-list" class="stack"></div></section><section class="panel"><div class="panel-head"><div><p class="eyebrow">Candidate releases</p><h3 id="candidate-title">Choose a request</h3></div></div><div id="candidate-list" class="candidate-list empty">Select a request to inspect its candidates.</div></section></div>
+        </section>
+
+        <section class="view" id="view-imports"><div class="section-intro"><div><p class="eyebrow accent">Safety first</p><h2>Imports and repair</h2><p class="lede">Clear matches can be executed when dry-run is disabled. Ambiguous work stays visible for review.</p></div></div><div class="two-col"><section class="panel"><div class="panel-head"><div><p class="eyebrow">Current plan</p><h3>Import decisions</h3></div><button class="text-button" id="refresh-plan">Refresh</button></div><div id="plan-list" class="stack"></div><div class="panel-head subhead"><div><p class="eyebrow">Undo records</p><h3>Verified actions</h3></div></div><div id="undo-list" class="stack"></div></section><section class="panel"><div class="panel-head"><div><p class="eyebrow">Download activity</p><h3>Progress</h3></div><button class="text-button" id="refresh-downloads">Refresh</button></div><div id="download-list" class="stack"></div></section></div></section>
+
+        <section class="view" id="view-library"><div class="section-intro"><div><p class="eyebrow accent">Verified media</p><h2>Library</h2><p class="lede">Jellyfin read-back keeps this view tied to files the library can actually see.</p></div><div class="top-actions"><button class="button ghost" id="refresh-library">Refresh</button><button class="button primary" id="scan-library">Scan now</button></div></div><section class="panel"><div id="library-list" class="library-grid"></div></section></section>
+
+        <section class="view" id="view-activity"><div class="section-intro"><div><p class="eyebrow accent">Traceable work</p><h2>Activity</h2><p class="lede">Every search, download, verification, retry, and undo is recorded for review.</p></div></div><div class="two-col"><section class="panel"><div class="panel-head"><div><p class="eyebrow">Background jobs</p><h3>Retries and failures</h3></div></div><div id="job-list" class="stack"></div></section><section class="panel"><div class="panel-head"><div><p class="eyebrow">Audit trail</p><h3>Recent activity</h3></div></div><div id="activity-list" class="activity-list"></div></section></div></section>
+      </main>
+    </div>
+
+    <dialog id="login-dialog"><form method="dialog" id="login-form"><p class="eyebrow accent">Private console</p><h2>Sign in to continue</h2><p>Use the operator token configured for this Unraid deployment.</p><label>Operator token<input name="token" type="password" autocomplete="current-password" required /></label><button class="button primary" type="submit">Unlock console</button><p id="login-feedback" class="feedback"></p></form></dialog>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

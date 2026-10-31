@@ -25,9 +25,13 @@ python -m pytest
 python -m ruff check .
 ```
 
-`MEDIA_DOWNLOADS_ROOT`, `MEDIA_DOWNLOAD_MANIFEST`, `MEDIA_CANDIDATE_MANIFEST`, `MEDIA_AUDIT_PATH`, `MEDIA_DRY_RUN`, `MEDIA_RESTART_CAP`, `MEDIA_HTTP_TIMEOUT`, and `MEDIA_DOWNLOAD_CLIENTS` configure the process. `SONARR_URL` and `SONARR_API_KEY`, `RADARR_URL` and `RADARR_API_KEY`, `QBITTORRENT_URL` with its username/password, and `SABNZBD_URL` with `SABNZBD_API_KEY` enable live adapters. Secrets are supplied through environment variables and never written to validation output or audit events.
+For a complete local flow without any live service, run `MEDIA_MOCK_MODE=true MEDIA_STATE_PATH=/tmp/media-state.db MEDIA_AUDIT_PATH=/tmp/media-audit.jsonl media-stack serve` and open `http://localhost:8080`. The mock indexer, qBittorrent queue, progress updates, jobs, and authenticated API flow are covered by `tests/test_mock_e2e.py`.
+
+`MEDIA_DOWNLOADS_ROOT`, `MEDIA_DOWNLOAD_MANIFEST`, `MEDIA_CANDIDATE_MANIFEST`, `MEDIA_AUDIT_PATH`, `MEDIA_STATE_PATH`, `MEDIA_DRY_RUN`, `MEDIA_RESTART_CAP`, `MEDIA_HTTP_TIMEOUT`, `MEDIA_DOWNLOAD_CLIENTS`, and `MEDIA_AUTH_TOKEN` configure the process. `SONARR_URL` and `SONARR_API_KEY`, `RADARR_URL` and `RADARR_API_KEY`, `PROWLARR_URL` and `PROWLARR_API_KEY`, `JELLYFIN_URL` and `JELLYFIN_API_KEY`, `QBITTORRENT_URL` with its username/password, and `SABNZBD_URL` with `SABNZBD_API_KEY` enable live adapters. Secrets are supplied through environment variables and never written to validation output or audit events.
 
 Run `media-stack validate-config` before `plan`. It checks URL shape, required credential pairs, enabled client names, and local manifest paths without contacting any service. It exits non-zero for invalid configuration and prints only redacted fields.
+
+State migrations run automatically when the process starts. Use `media-stack migrate` after a container update and `media-stack backup --destination /config/backups/state-$(date +%Y%m%d-%H%M%S).db` before maintenance. Back up the mounted `/config` directory as well as the SQLite database so audit history and environment files stay together.
 
 ## API and Unraid
 

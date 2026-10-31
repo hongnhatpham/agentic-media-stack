@@ -18,6 +18,9 @@ media-stack = "agentic_media_stack.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+agentic_media_stack = ["static/*"]
+
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
