@@ -39,6 +39,7 @@ class MediaCandidate:
     season: int | None = None
     episode: int | None = None
     file_path: str | None = None
+    parent_id: str | None = None
 
 
 @dataclass(frozen=True)

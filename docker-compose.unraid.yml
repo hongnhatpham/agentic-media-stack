@@ -1,0 +1,18 @@
+services:
+  media-stack:
+    build:
+      context: .
+    container_name: agentic-media-stack
+    env_file:
+      - ./deploy/unraid.env
+    environment:
+      MEDIA_DOWNLOADS_ROOT: /downloads
+      MEDIA_AUDIT_PATH: /config/audit.jsonl
+    ports:
+      - "8080:8080"
+    volumes:
+      - ${UNRAID_DOWNLOADS_PATH:-/mnt/user/downloads}:/downloads:ro
+      - ${UNRAID_APPDATA_PATH:-/mnt/user/appdata/agentic-media-stack}:/config
+    read_only: true
+    security_opt:
+      - no-new-privileges:true

@@ -19,16 +19,19 @@ python -m venv .venv && . .venv/bin/activate
 pip install -e '.[test]'
 MEDIA_DOWNLOAD_MANIFEST=tests/fixtures/downloads.json \
 MEDIA_CANDIDATE_MANIFEST=tests/fixtures/candidates.json \
+MEDIA_AUDIT_PATH=/tmp/media-stack-audit.jsonl \
 media-stack plan
 python -m pytest
 python -m ruff check .
 ```
 
-`MEDIA_DOWNLOADS_ROOT`, `MEDIA_DOWNLOAD_MANIFEST`, `MEDIA_CANDIDATE_MANIFEST`, `MEDIA_AUDIT_PATH`, `MEDIA_DRY_RUN`, and `MEDIA_RESTART_CAP` configure the process. Secrets for future live adapters are supplied through environment variables and never written to audit events.
+`MEDIA_DOWNLOADS_ROOT`, `MEDIA_DOWNLOAD_MANIFEST`, `MEDIA_CANDIDATE_MANIFEST`, `MEDIA_AUDIT_PATH`, `MEDIA_DRY_RUN`, `MEDIA_RESTART_CAP`, `MEDIA_HTTP_TIMEOUT`, and `MEDIA_DOWNLOAD_CLIENTS` configure the process. `SONARR_URL` and `SONARR_API_KEY`, `RADARR_URL` and `RADARR_API_KEY`, `QBITTORRENT_URL` with its username/password, and `SABNZBD_URL` with `SABNZBD_API_KEY` enable live adapters. Secrets are supplied through environment variables and never written to validation output or audit events.
+
+Run `media-stack validate-config` before `plan`. It checks URL shape, required credential pairs, enabled client names, and local manifest paths without contacting any service. It exits non-zero for invalid configuration and prints only redacted fields.
 
 ## API and Unraid
 
-`media-stack serve` exposes `GET /health` and `GET /plan` on port 8080. See [deploy/unraid.md](deploy/unraid.md) and `docker-compose.yml` for a read-only volume layout. Add a live adapter in a deployment entry point only after testing it against the mock contracts.
+`media-stack serve` exposes `GET /health` and `GET /plan` on port 8080. See [deploy/unraid.md](deploy/unraid.md), `docker-compose.yml`, and `docker-compose.unraid.yml` for a read-only volume layout. Live adapters are selected from environment configuration; the default remains dry-run.
 
 ## Limitations
 

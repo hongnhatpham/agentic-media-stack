@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from .adapters import DownloadClientAdapter, MediaAppAdapter
+from .adapters import AdapterError, DownloadClientAdapter, MediaAppAdapter
 from .audit import AuditLog
 from .matching import find_matches
 from .models import ImportResult, Match, MediaGraph, PlanAction, PlanItem, Verification
@@ -22,10 +22,23 @@ class MediaEngine:
 
     def build_graph(self) -> MediaGraph:
         matches: list[Match] = []
-        candidates = [candidate for app in self.apps for candidate in app.candidates()]
+        candidates = []
+        for app in self.apps:
+            try:
+                candidates.extend(app.candidates())
+            except AdapterError as exc:
+                self.audit.record(
+                    "adapter_error", str(exc), adapter=app.name, operation="candidates"
+                )
         downloads_seen = []
         for client in self.clients:
-            downloads = client.completed_downloads()
+            try:
+                downloads = client.completed_downloads()
+            except AdapterError as exc:
+                self.audit.record(
+                    "adapter_error", str(exc), adapter=client.name, operation="completed_downloads"
+                )
+                continue
             downloads_seen.extend(downloads)
             self.audit.record(
                 "discovery", "read completed downloads", client=client.name, count=len(downloads)
