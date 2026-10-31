@@ -1,13 +1,12 @@
 # Unraid
 
-The deployment uses the existing `arr` Docker network, does not publish a host port, and exposes the app only through the Tailscale sidecar. Copy both examples to protected files, set mode 600, and keep them out of git:
+The deployment uses the existing `arr` Docker network and binds the app to Unraid's loopback only. A helper container uses the already-authenticated host Tailscale socket to configure Tailscale HTTPS Serve; it does not start a second Tailscale daemon or need an auth key.
 
 ```bash
 install -m 600 deploy/unraid.env.example deploy/unraid.env
-install -m 600 deploy/tailscale.env.example deploy/tailscale.env
 ```
 
-Set the real values on Unraid. `TS_AUTHKEY` must be a reusable or pre-authorized tailnet auth key. The sidecar uses persistent state under `/mnt/user/appdata/stackarr/tailscale` and does not advertise routes.
+Set the real values on Unraid. `TAILSCALE_SOCKET_PATH` should point to the host daemon socket, normally `/var/run/tailscale/tailscaled.sock`.
 
 Validate the configuration without making network calls:
 
@@ -15,7 +14,9 @@ Validate the configuration without making network calls:
 docker compose -f docker-compose.unraid.yml run --rm stackarr validate-config
 ```
 
-Build and start the stack with `docker compose -f docker-compose.unraid.yml up -d --build`. It maps the existing `/mnt/user/data` tree read-only at `/downloads`, persists state and audit data in `/mnt/user/appdata/stackarr`, and keeps `MEDIA_DRY_RUN=true`. The requested URL is `https://stackarr.feist-beardie.ts.net`; Tailscale HTTPS Serve terminates TLS and proxies to the app's private port 8080. There is no host port publication.
+Build and start the stack with `docker compose -f docker-compose.unraid.yml up -d --build`. It maps the existing `/mnt/user/data` tree read-only at `/downloads`, persists state and audit data in `/mnt/user/appdata/stackarr`, and keeps `MEDIA_DRY_RUN=true`. The requested URL is `https://stackarr.feist-beardie.ts.net`; the helper advertises the `svc:stackarr` Tailscale service and HTTPS Serve terminates TLS. The only host binding is `127.0.0.1:8080`.
+
+The helper runs `tailscale serve --service=svc:stackarr --https=443 127.0.0.1:8080` through the mounted host socket. Tailscale may require an administrator to approve the new service host once; that approval is a tailnet policy action, not a secret handoff.
 
 The existing qBittorrent container shares Gluetun's network namespace. Its WebUI/API is therefore `http://GluetunVPN:8080` from the `arr` network. The current qBittorrent password is stored only as a hash in its config, so leave `qbittorrent` out of `MEDIA_DOWNLOAD_CLIENTS` until a plaintext credential is supplied through the protected env file. Do not change qBittorrent's config to work around that.
 
