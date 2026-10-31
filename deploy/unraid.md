@@ -14,6 +14,12 @@ Validate the configuration without making network calls:
 docker compose -f docker-compose.unraid.yml run --rm stackarr validate-config
 ```
 
+Unraid installs without the Compose plugin can run `deploy/unraid-run.sh` instead. It builds the image, keeps a pre-deploy SQLite backup, starts the loopback-only app, and starts the host-socket Tailscale helper:
+
+```bash
+deploy/unraid-run.sh
+```
+
 Build and start the stack with `docker compose -f docker-compose.unraid.yml up -d --build`. It maps the existing `/mnt/user/data` tree read-only at `/downloads`, persists state and audit data in `/mnt/user/appdata/stackarr`, and keeps `MEDIA_DRY_RUN=true`. The requested URL is `https://stackarr.feist-beardie.ts.net`; the helper advertises the `svc:stackarr` Tailscale service and HTTPS Serve terminates TLS. The only host binding is loopback `127.0.0.1:18080` by default.
 
 The helper runs `tailscale serve --service=svc:stackarr --https=443 127.0.0.1:18080` through the mounted host socket. Tailscale may require an administrator to approve the new service host once; that approval is a tailnet policy action, not a secret handoff.
